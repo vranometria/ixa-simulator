@@ -1,0 +1,1 @@
+export const SoldierTypeNames = [ "武士", "赤備え", "弓騎馬", "鉄砲足軽", "騎馬鉄砲", "炮烙火矢", "穴太衆", "雑衆衆" ] as const;
