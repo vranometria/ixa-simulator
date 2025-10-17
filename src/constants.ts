@@ -1,5 +1,16 @@
 import type { Soldier } from "./types";
 
+export enum SkillRarity {
+    SSS = "SSS",
+    SS = "SS",
+    S = "S",
+    A = "A",
+    B = "B",
+    C = "C",
+    D = "D",
+    E = "E"
+}
+
 export enum SoldierCategory {
     Lancer = "lancer",
     Cavalry = "cavalry",

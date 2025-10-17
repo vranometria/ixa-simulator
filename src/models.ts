@@ -1,5 +1,21 @@
 import { Akazonae, SoldierCategory } from "./constants";
-import type { BrigadeEffect, Busyo, Unit, ParameterMatrix } from "./types.d.ts";
+import type { BrigadeEffect, Unit, ParameterMatrix, Skill } from "./types.d.ts";
+
+export class Busyo {
+    id: string;
+    name: string;
+    cost: number;
+    forceSize: number;
+    attack: number;
+    defense: number;
+    strategy: number;
+    skills: Skill[4];
+
+    getFirstSkill(): Skill | null {
+        return this.skills[0] ?? null;
+    }
+}
+
 
 export class Brigade {
     units: Unit[] = [ null, null, null, null ];
@@ -28,13 +44,27 @@ export class Brigade {
 }
 
 export class SkillArgs {
+    lineNumber: number;
     numberOfUnits: number;
     brigades: Brigade[];
+    summationOfCost: number;
+    probabilityAddition: number;
+    isImitating: boolean;
 
     BrigadeEffects: BrigadeEffect[];
 
     getBrigadeIndex(busyo: Busyo): number {
         return this.brigades.findIndex(brigade => brigade.belongs(busyo));
+    }
+
+    getBrigate(busyo: Busyo): Brigade | null {
+        const index = this.getBrigadeIndex(busyo);
+        return index >= 0 ? this.brigades[index] : null;
+    }
+
+    getReader(busyo: Busyo): Busyo | null {
+        const reader = this.getBrigate(busyo).units[0].busyo;
+        return reader.id === busyo.id ? null : reader;
     }
 }
 

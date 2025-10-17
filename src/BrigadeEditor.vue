@@ -8,9 +8,9 @@
 </template>
 
 <script setup lang="ts">
+import { Busyo } from './models';
 import ParameterView from './ParameterView.vue';
 import { useFormationStore } from './store/formationStore';
-import { Busyo } from './types';
 import UnitEdit from './UnitEdit.vue';
 
 const formationStore = useFormationStore();

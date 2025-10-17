@@ -14,7 +14,7 @@
 import { ref } from 'vue';
 import { useBusyoStore } from './store/busyoStore';
 import { SoldierTypeNames } from './SoldierType';
-import { Busyo } from './types';
+import { Busyo } from './models';
 
 const props = defineProps<{ num: number }>();
 const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | undefined, soldierType: string): void }>();
@@ -27,6 +27,11 @@ const busyoStore = useBusyoStore();
 
 const onChanged = (event: Event) => {
     const busyo = busyoStore.getBusyoById(busyoId.value);
+
+    if(!busyoId.value || !soldierType.value){
+        return;
+    }
+
     emits("changed", props.num, busyo, soldierType.value);
 };
 
