@@ -1,3 +1,5 @@
+import { SoldierCategory } from "./constants";
+
 export interface Busyo {
     id: string;
     name: string;
@@ -25,4 +27,18 @@ export interface BrigadeEffect {
 export interface Unit {
     busyo: Busyo;
     soldierType: string;
+}
+
+export interface Soldier {
+    name: string;
+    category: SoldierCategory;
+    attack: number;
+    defense: number;
+}
+
+export interface ParameterMatrix {
+    lancer: number;
+    cavalry: number;
+    archer: number;
+    weapon: number;
 }
