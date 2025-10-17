@@ -21,3 +21,8 @@ export interface BrigadeEffect {
     cost: number;  
     all: number;
 }
+
+export interface Unit {
+    busyo: Busyo;
+    soldierType: string;
+}

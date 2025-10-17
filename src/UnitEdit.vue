@@ -1,25 +1,52 @@
 <template>
-    
-    <img :src="image" alt="Unit Image" />
-    <select class="item">
-        <option v-for="t in busyoStore.idAndNames" :key="t.id" :value="t.id">{{ t.name }}</option>
-    </select>
-    <select class="item">
-        <option v-for="type in SoldierTypeNames" :key="type" :value="type">{{ type }}</option>
-    </select>
+    <div class="unit-edit">
+        <img :src="image" alt="Unit Image" />
+        <select class="item" v-model="busyoId" @change="onChanged">
+            <option v-for="t in busyoStore.idAndNames" :key="t.id" :value="t.id">{{ t.name }}</option>
+        </select>
+        <select class="item" v-model="soldierType" @change="onChanged">
+            <option v-for="type in soldierTypeNames" :key="type" :value="type">{{ type }}</option>
+        </select>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useBusyoStore } from './store/busyoStore';
 import { SoldierTypeNames } from './SoldierType';
+import { Busyo } from './types';
 
+const props = defineProps<{ num: number }>();
+const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | undefined, soldierType: string): void }>();
+
+const busyoId = ref("");
+const soldierType = ref("");
 const image = ref("./assets/someone.png");
+const soldierTypeNames = ["", ...SoldierTypeNames];
 const busyoStore = useBusyoStore();
+
+const onChanged = (event: Event) => {
+    const busyo = busyoStore.getBusyoById(busyoId.value);
+    emits("changed", props.num, busyo, soldierType.value);
+};
+
 </script>
 
 
 <style scoped>
+.unit-edit {
+    width: 110px;
+    height: 150px;
+    border: 1px solid gray;
+    margin: 4px;
+    padding: 4px;
+    align-items: center;
+}
+
+select {
+    width: 100%;
+}
+
 img {
     width: 100px;
     height: 100px;

@@ -14,5 +14,8 @@ export const useBusyoStore = defineStore('busyo', {
         addBusyo(busyo : Busyo) {
             this.busyos.push(busyo);
         },
+        getBusyoById(id: string): Busyo | undefined {
+            return this.busyos.find((b: Busyo) => b.id === id);
+        }
     },
 });

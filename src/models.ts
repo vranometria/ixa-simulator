@@ -1,10 +1,14 @@
-import { BrigadeEffect, Busyo } from "./types";
+import type { BrigadeEffect, Busyo, Unit } from "./types.d.ts";
 
-class Brigade {
-    busyos: Busyo[];
-
+export class Brigade {
+    units: Unit[] = [ null, null, null, null ];
+    
     belongs(busyo: Busyo): boolean {
-        return this.busyos.some(b => b.id === busyo.id);
+        return this.units.some(u => u.busyo.id === busyo.id);
+    }
+
+    putUnit(unitIndex: number, busyo: Busyo, soldierType: string) {
+        this.units[unitIndex] = { busyo, soldierType };
     }
 }
 
