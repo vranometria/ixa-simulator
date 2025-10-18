@@ -1,23 +1,13 @@
 import { SkillRarity } from "./constants";
-import { Busyo, SkillArgs } from "./models";
-import type { Skill } from "./types.d.ts";
+import { Busyo, ParameterMatrix, SkillArgs } from "./models";
 
-export const SkillNames: string[] = ["天鷹炯眼", "針葉浄美", "遁世影武者"];
-
-export class SkillCreator {
-  static create(name: string, busyo: Busyo): Skill | null {
-    switch (name) {
-      case "天鷹炯眼":
-        return new 天鷹炯眼(busyo);
-      case "針葉浄美":
-        return new 針葉浄美(busyo);
-      case "遁世影武者":
-        return new 遁世影武者(busyo);
-      default:
-        return null;
-    }
-  }
-}
+const skillDefMap: Record<string, () => Skill> = {
+  Test: () => new Test(),
+  天鷹炯眼: () => new 天鷹炯眼(),
+  針葉浄美: () => new 針葉浄美(),
+  清賢ノ遊姫: () => new 清賢ノ遊姫(),
+  遁世影武者: () => new 遁世影武者(),
+};
 
 interface SkillOption {
   ratio?: number;
@@ -33,18 +23,16 @@ class BaseSkill implements Skill {
   rarity: SkillRarity;
   imitable = true;
 
-  constructor(
-    busyo: Busyo,
-    name: string,
-    rarity: SkillRarity,
-    options: SkillOption = {}
-  ) {
-    this.busyo = busyo;
+  constructor(name: string, rarity: SkillRarity, options: SkillOption = {}) {
     this.name = name;
     this.rarity = rarity;
     this.ratio = options.ratio ?? 0;
     this.effect = options.effect ?? 0;
     this.imitable = options.immediate ?? true;
+  }
+
+  preEffect(args: SkillArgs): void {
+    return;
   }
 
   culcEffect(args: SkillArgs): void {
@@ -53,19 +41,14 @@ class BaseSkill implements Skill {
 }
 
 class ImitateSkill extends BaseSkill {
-  constructor(
-    busyo: Busyo,
-    name: string,
-    rarity: SkillRarity,
-    options: SkillOption = {}
-  ) {
-    super(busyo, name, rarity, options);
+  constructor(name: string, rarity: SkillRarity, options: SkillOption = {}) {
+    super(name, rarity, options);
   }
 
   getReaderSkill(args: SkillArgs): Skill | null {
     const reader = args.getReader(this.busyo);
     const skillName = reader.getFirstSkill().name;
-    return SkillCreator.create(skillName, this.busyo);
+    return createSkill(skillName, this.busyo);
   }
 
   preEffect(args: SkillArgs): void {
@@ -85,41 +68,108 @@ class ImitateSkill extends BaseSkill {
   }
 }
 
+class Test extends BaseSkill {
+  constructor() {
+    super("Test", SkillRarity.S, { ratio: 1, effect: 1 });
+  }
+  culcEffect(args: SkillArgs): void {
+    const brigadeIndex = args.getBrigadeIndex(this.busyo);
+    const effect = this.effect * this.ratio;
+    const m: ParameterMatrix = new ParameterMatrix();
+    m.setAll(effect);
+    args.putResult(brigadeIndex, m);
+  }
+}
+
 class 天鷹炯眼 extends BaseSkill {
-  constructor(busyo: Busyo) {
-    super(busyo, "天鷹炯眼", SkillRarity.S, { ratio: 0.24, effect: 1.16 });
+  constructor() {
+    super("天鷹炯眼", SkillRarity.S, { ratio: 0.24, effect: 1.16 });
   }
 
   preEffect(args: SkillArgs): void {
     const lineNumber = args.getBrigadeIndex(this.busyo);
-    args.BrigadeEffects[lineNumber].cost += 3;
+    args.brigadePreEffects[lineNumber].additionalCost += 3;
   }
 
   culcEffect(args: SkillArgs): void {
     const brigadeIndex = args.getBrigadeIndex(this.busyo);
-    args.BrigadeEffects[brigadeIndex].all *= this.effect * this.ratio;
+    const effect = this.effect * (this.ratio + args.totalAdditionalProbability);
+    const m: ParameterMatrix = new ParameterMatrix();
+    m.setAll(effect);
+    args.putResult(brigadeIndex, m);
   }
 }
 
 class 針葉浄美 extends BaseSkill {
-  constructor(busyo: Busyo) {
-    super(busyo, "針葉浄美", SkillRarity.S, { ratio: 1, effect: 5 });
+  constructor() {
+    super("針葉浄美", SkillRarity.S, { ratio: 1, effect: 5 });
   }
 
-  preeffect(args: SkillArgs): void {
+  preEffect(args: SkillArgs): void {
     const lineNumber = args.getBrigadeIndex(this.busyo);
-    args.BrigadeEffects[lineNumber].addProbabilityOnlyPrincess += 0.1;
+    args.brigadePreEffects[lineNumber].additionalProbability.princess += 0.1;
   }
 
   culcEffect(args: SkillArgs): void {
     const brigadeIndex = args.getBrigadeIndex(this.busyo);
-    args.BrigadeEffects[brigadeIndex].all *=
-      this.effect * (this.ratio + args.probabilityAddition);
+    const effect = (this.effect + args.totalAdditionalProbability) * this.ratio;
+    const m: ParameterMatrix = new ParameterMatrix();
+    m.setAll(effect);
+    args.putResult(brigadeIndex, m);
+  }
+}
+
+class 清賢ノ遊姫 extends BaseSkill {
+  constructor() {
+    super("清賢ノ遊姫", SkillRarity.B, { ratio: 1, effect: 1.4 });
+  }
+
+  preEffect(args: SkillArgs): void {
+    const brigadeIndex = args.getBrigadeIndex(this.busyo);
+    args.brigadePreEffects[brigadeIndex].additionalProbability.princess += 0.1;
+    args.brigadePreEffects[
+      brigadeIndex
+    ].additionalTakuetsuProbability.princess += 0.25;
+  }
+
+  culcEffect(args: SkillArgs): void {
+    const brigadeIndex = args.getBrigadeIndex(this.busyo);
+    const effect = this.effect * this.ratio;
+    const m: ParameterMatrix = new ParameterMatrix();
+    m.setAll(effect);
+    args.putResult(brigadeIndex, m);
   }
 }
 
 class 遁世影武者 extends ImitateSkill {
-  constructor(busyo: Busyo) {
-    super(busyo, "遁世影武者", SkillRarity.B, { ratio: 1 });
+  constructor() {
+    super("遁世影武者", SkillRarity.B, { ratio: 1 });
   }
+}
+
+
+
+/** スキル名一覧を取得する */
+export const getSkillNames = () => Object.keys(skillDefMap);
+
+/** スキルクラスのインスタンスをスキル名から生成する */
+export const createSkill = (name: string, busyo: Busyo): Skill | null => {
+  const defFunc = skillDefMap[name];
+  if (defFunc) {
+    const skill = defFunc();
+    skill.busyo = busyo;
+    return skill;
+  }
+  return null;
+};
+
+export interface Skill {
+    busyo: Busyo;
+    name: string;
+    rarity: SkillRarity;
+    imitable: boolean; // 模倣可能かどうか
+    ratio: number;
+    effect: number;
+    preEffect(args: SkillArgs): void;
+    culcEffect(args: SkillArgs): void;
 }

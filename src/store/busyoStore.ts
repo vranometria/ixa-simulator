@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Busyo } from '../types.d.ts';
+import { Busyo } from '../models';
 
 export const useBusyoStore = defineStore('busyo', {
     state: () => ({

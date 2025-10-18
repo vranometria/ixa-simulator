@@ -2,9 +2,11 @@
     <div class="unit-edit">
         <img :src="image" alt="Unit Image" />
         <select class="item" v-model="busyoId" @change="onChanged">
+            <option value=""></option>
             <option v-for="t in busyoStore.idAndNames" :key="t.id" :value="t.id">{{ t.name }}</option>
         </select>
         <select class="item" v-model="soldierType" @change="onChanged">
+            <option value=""></option>
             <option v-for="type in soldierTypeNames" :key="type" :value="type">{{ type }}</option>
         </select>
     </div>
@@ -13,11 +15,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useBusyoStore } from './store/busyoStore';
-import { SoldierTypeNames } from './SoldierType';
 import { Busyo } from './models';
+import { SoldierTypeNames } from './constants';
 
 const props = defineProps<{ num: number }>();
-const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | undefined, soldierType: string): void }>();
+const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | null, soldierType: string): void }>();
 
 const busyoId = ref("");
 const soldierType = ref("");
@@ -26,15 +28,12 @@ const soldierTypeNames = ["", ...SoldierTypeNames];
 const busyoStore = useBusyoStore();
 
 const onChanged = (event: Event) => {
-    const busyo = busyoStore.getBusyoById(busyoId.value);
-
-    if(!busyoId.value || !soldierType.value){
-        return;
+    let busyo: Busyo | null = null;
+    if(busyoId.value && soldierType.value){
+        busyo = busyoStore.getBusyoById(busyoId.value);
     }
-
     emits("changed", props.num, busyo, soldierType.value);
 };
-
 </script>
 
 

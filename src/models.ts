@@ -1,15 +1,33 @@
-import { Akazonae, SoldierCategory } from "./constants";
-import type { BrigadeEffect, Unit, ParameterMatrix, Skill } from "./types.d.ts";
+import { Akazonae, Role, SoldierCategory } from "./constants";
+import { Skill } from "./skilles";
+import type { AdditionalProbability, Unit } from "./types.d.ts";
+
+class PreEffect {
+    additionalCost: number;
+    additionalProbability: AdditionalProbability;
+    additionalTakuetsuProbability: AdditionalProbability;
+    constructor() {
+        this.additionalCost = 0;
+        this.additionalProbability = { all: 0, princess: 0 };
+        this.additionalTakuetsuProbability = { all: 0, princess: 0 };
+    }
+}
 
 export class Busyo {
     id: string;
     name: string;
     cost: number;
+    role: Role;
     forceSize: number;
+    rank: number;
     attack: number;
     defense: number;
     strategy: number;
-    skills: Skill[4];
+    skills: Skill[] = new Array(4).fill(null);
+
+    constructor() {
+        this.id = crypto.randomUUID();
+    }
 
     getFirstSkill(): Skill | null {
         return this.skills[0] ?? null;
@@ -21,6 +39,7 @@ export class Brigade {
     units: Unit[] = [ null, null, null, null ];
     
     belongs(busyo: Busyo): boolean {
+        if(!busyo) return false;
         return this.units.some(u => u.busyo.id === busyo.id);
     }
 
@@ -28,33 +47,44 @@ export class Brigade {
         this.units[unitIndex] = { busyo, soldierType };
     }
 
-    getParameterMatrix() {
-        const matrix: ParameterMatrix = {
-            lancer: 0,
-            cavalry: 0,
-            archer: 0,
-            weapon: 0
-        };
-        this.units.filter( u => u != null ).forEach(unit => {
-            const category: keyof ParameterMatrix = SoldierFactory.getCategory(unit.soldierType);
-            matrix[category] += unit.busyo.defense + SoldierFactory.getDifference(unit.soldierType) * unit.busyo.forceSize;
-        });
-        return matrix;
+    getUnitCount() {
+        return this.units.filter( u => u != null && u.busyo && u.soldierType ).length;
     }
 }
 
 export class SkillArgs {
-    lineNumber: number;
     numberOfUnits: number;
+    formationPreEffect: PreEffect = new PreEffect();
+    brigadePreEffects: PreEffect[] = [...Array(6)].map(() => new PreEffect());
     brigades: Brigade[];
-    summationOfCost: number;
-    probabilityAddition: number;
-    isImitating: boolean;
 
-    BrigadeEffects: BrigadeEffect[];
+    lineNumber: number;
+    isImitating: boolean;
+    totalAdditionalProbability: number;
+
+    results: ParameterMatrix[];
+
+    constructor() {
+        this.numberOfUnits = 0;
+        this.brigades = [];
+        this.lineNumber = 0;
+        this.isImitating = false;
+        this.totalAdditionalProbability = 0;
+        this.results = [ new ParameterMatrix(), new ParameterMatrix(), new ParameterMatrix(), new ParameterMatrix(), ];
+    }
+
+    init(): void {
+        this.isImitating = false;
+        this.totalAdditionalProbability = 0;
+        this.results = [ new ParameterMatrix(), new ParameterMatrix(), new ParameterMatrix(), new ParameterMatrix(), ];
+    }
 
     getBrigadeIndex(busyo: Busyo): number {
-        return this.brigades.findIndex(brigade => brigade.belongs(busyo));
+        const index = this.brigades.findIndex(brigade => brigade.belongs(busyo));
+        if (index === -1) {
+            throw new Error(`Busyo ${busyo.name} is not found in any brigade.`);
+        }
+        return index;
     }
 
     getBrigate(busyo: Busyo): Brigade | null {
@@ -65,6 +95,22 @@ export class SkillArgs {
     getReader(busyo: Busyo): Busyo | null {
         const reader = this.getBrigate(busyo).units[0].busyo;
         return reader.id === busyo.id ? null : reader;
+    }
+
+    putResult(brigadeIndex: number, matrix: ParameterMatrix) : void {
+        this.results[brigadeIndex] = this.results[brigadeIndex].add(matrix);
+    }
+
+    getParameterMatrix() : ParameterMatrix {
+        const matrix = new ParameterMatrix();
+        
+        for (const result of this.results) {
+            matrix.lancer += result.lancer;
+            matrix.cavalry += result.cavalry;
+            matrix.archer += result.archer;
+            matrix.weapon += result.weapon;
+        }
+        return matrix;
     }
 }
 
@@ -93,5 +139,35 @@ export class SoldierFactory {
             default:
                 throw new Error(`Unknown soldier type: ${soldierType}`);
         }
+    }
+}
+
+export class ParameterMatrix {
+    lancer: number;
+    cavalry: number;
+    archer: number;
+    weapon: number;
+
+    constructor() {
+        this.lancer = 0;
+        this.cavalry = 0;
+        this.archer = 0;
+        this.weapon = 0;
+    }
+
+    setAll(value: number): void {
+        this.lancer = value;
+        this.cavalry = value;
+        this.archer = value;
+        this.weapon = value;
+    }
+
+    add(other: ParameterMatrix): ParameterMatrix {
+        const m = new ParameterMatrix();
+        m.lancer = this.lancer + other.lancer;
+        m.cavalry = this.cavalry + other.cavalry;
+        m.archer = this.archer + other.archer;
+        m.weapon = this.weapon + other.weapon;
+        return m;
     }
 }

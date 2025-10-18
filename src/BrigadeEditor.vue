@@ -19,7 +19,11 @@ const props = defineProps<{
     num: number;
 }>();
 
-const changed = (unitNum: number, busyo: Busyo | undefined, soldierType: string) => {
+const changed = (unitNum: number, busyo: Busyo | null, soldierType: string) => {
+    if(!busyo || !soldierType) {
+        formationStore.removeUnit(props.num - 1, unitNum - 1);
+        return;
+    }
     formationStore.putUnit(props.num - 1, unitNum - 1, busyo, soldierType);
 };
 </script>

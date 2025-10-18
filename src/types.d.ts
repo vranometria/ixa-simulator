@@ -1,22 +1,5 @@
-import { SoldierCategory, SkillRarity } from "./constants";
-
-export interface Skill {
-    busyo: Busyo;
-    name: string;
-    rarity: SkillRarity;
-    imitable: boolean = true; // 模倣可能かどうか
-    ratio: number;
-    effect: number;
-    preEffect?(args: SkillArgs): void;
-    culcEffect(args: SkillArgs): void;
-}
-
-export interface BrigadeEffect {
-    cost: number;  
-    all: number;
-
-    addProbabilityOnlyPrincess: number; // 姫のみ確率追加
-}
+import { SoldierCategory } from "./constants";
+import { Busyo } from "./models";
 
 export interface Unit {
     busyo: Busyo;
@@ -30,9 +13,7 @@ export interface Soldier {
     defense: number;
 }
 
-export interface ParameterMatrix {
-    lancer: number;
-    cavalry: number;
-    archer: number;
-    weapon: number;
+export interface AdditionalProbability {
+    all: number;
+    princess: number;
 }
