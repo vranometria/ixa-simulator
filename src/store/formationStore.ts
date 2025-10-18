@@ -54,6 +54,7 @@ export const useFormationStore = defineStore("formation", {
       const currentBrigade = this.formations[brigadeIndex] as Brigade;
       skillArgs.lineNumber = brigadeIndex + 1;
       skillArgs.rankBonus = currentBrigade.getRankBonus();
+      skillArgs.strategyBonus = currentBrigade.getStrategyBonus();
 
       let m = new ParameterMatrix();
       for (const unit of currentBrigade.units) {

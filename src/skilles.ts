@@ -32,9 +32,7 @@ class BaseSkill implements Skill {
   }
 
   getProbability(args: SkillArgs): number {
-    console.log(args.rankBonus);
-    
-    const t = this.ratio + args.totalAdditionalProbability + args.rankBonus;
+    const t = this.ratio + args.totalAdditionalProbability + args.rankBonus + args.strategyBonus;
     return t >= 1 ? 1 : t;
   }
 

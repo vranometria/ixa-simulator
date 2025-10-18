@@ -62,6 +62,15 @@ export class Brigade {
         console.log("rank: ", rank);
         return rank in RankBonus ? RankBonus[rank] : 0;
     }
+
+    // 兵法ボーナス
+    getStrategyBonus(): number {
+        const strategies = this.units.map( u => u?.busyo?.strategy ?? 0 );
+        const maxStrategy = Math.max(...strategies);
+        const totalStrategy = strategies.reduce( (sum, val) => sum + val, 0 );
+        const otherStrategy = totalStrategy - maxStrategy;
+        return (maxStrategy + otherStrategy / 6 )/ 100 / 100;
+    }
 }
 
 export class SkillArgs {
@@ -73,6 +82,7 @@ export class SkillArgs {
     // 旅団単位
     lineNumber: number;
     rankBonus: number;
+    strategyBonus: number;
 
     // スキル単位
     isImitating: boolean;
