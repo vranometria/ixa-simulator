@@ -1,4 +1,4 @@
-import { Akazonae, Role, SoldierCategory } from "./constants";
+import { Akazonae, RankBonus, Role, SoldierCategory } from "./constants";
 import { Skill } from "./skilles";
 import type { AdditionalProbability, Unit } from "./types.d.ts";
 
@@ -34,7 +34,6 @@ export class Busyo {
     }
 }
 
-
 export class Brigade {
     units: Unit[] = [ null, null, null, null ];
     
@@ -50,6 +49,19 @@ export class Brigade {
     getUnitCount() {
         return this.units.filter( u => u != null && u.busyo && u.soldierType ).length;
     }
+
+    getTotalRank(): number {
+        return this.units.reduce( (sum, u) => {
+            if(u == null || u.busyo == null) return sum;
+            return sum + u.busyo.rank;
+        }, 0);
+    }
+
+    getRankBonus(): number {
+        const rank = this.getTotalRank();
+        console.log("rank: ", rank);
+        return rank in RankBonus ? RankBonus[rank] : 0;
+    }
 }
 
 export class SkillArgs {
@@ -58,7 +70,11 @@ export class SkillArgs {
     brigadePreEffects: PreEffect[] = [...Array(6)].map(() => new PreEffect());
     brigades: Brigade[];
 
+    // 旅団単位
     lineNumber: number;
+    rankBonus: number;
+
+    // スキル単位
     isImitating: boolean;
     totalAdditionalProbability: number;
 

@@ -14,7 +14,15 @@ export const useFormationStore = defineStore("formation", {
       new Brigade(),
     ] as Brigade[],
   }),
-  getters: {},
+  getters: {
+    getAllUnitCount(): () => number {
+      return () => {
+        return this.formations.reduce((sum: number, brigade: Brigade) => {
+          return sum + brigade.getUnitCount();
+        }, 0);
+      };
+    },
+  },
   actions: {
     putUnit(
       brigadeIndex: number,
@@ -30,15 +38,11 @@ export const useFormationStore = defineStore("formation", {
     },
 
     getParameterMatrix(brigadeIndex: number): ParameterMatrix {
-      const d = {
-        unitCount: 0,
-      };
-
       const skillArgs = new SkillArgs();
       skillArgs.brigades = this.formations;
+      skillArgs.numberOfUnits = this.getAllUnitCount();
 
       for (const brigade of this.formations as Brigade[]) {
-        d.unitCount += brigade.units.length;
         for (const unit of brigade.units) {
           if (unit == null) continue;
           unit.busyo.skills.forEach((skill: Skill) => {
@@ -47,18 +51,17 @@ export const useFormationStore = defineStore("formation", {
         }
       }     
 
-      skillArgs.numberOfUnits = d.unitCount;
+      const currentBrigade = this.formations[brigadeIndex] as Brigade;
+      skillArgs.lineNumber = brigadeIndex + 1;
+      skillArgs.rankBonus = currentBrigade.getRankBonus();
 
-      const currentBrigade = this.formations[brigadeIndex];
       let m = new ParameterMatrix();
       for (const unit of currentBrigade.units) {
         if(currentBrigade == null || unit == null) continue;
-        skillArgs.lineNumber = brigadeIndex;
-        skillArgs.isImitating = false;
+        skillArgs.init();
         skillArgs.totalAdditionalProbability = (() => {
           let t = 0;
           t += skillArgs.formationPreEffect.additionalProbability.all;
-          
           if (unit.busyo.role == Role.Princess) {
             t += skillArgs.formationPreEffect.additionalProbability.princess;
             const bf = skillArgs.brigadePreEffects[brigadeIndex];
@@ -71,7 +74,6 @@ export const useFormationStore = defineStore("formation", {
           skill.culcEffect(skillArgs);
         });
         m = m.add(skillArgs.getParameterMatrix());
-        skillArgs.init();
       }
       return m;
     },

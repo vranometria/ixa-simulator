@@ -1,5 +1,8 @@
 <template>
     <div class="unit-edit">
+        <div>
+            {{ rank }}
+        </div>
         <img :src="image" alt="Unit Image" />
         <select class="item" v-model="busyoId" @change="onChanged">
             <option value=""></option>
@@ -16,7 +19,7 @@
 import { ref } from 'vue';
 import { useBusyoStore } from './store/busyoStore';
 import { Busyo } from './models';
-import { SoldierTypeNames } from './constants';
+import { Ranks, SoldierTypeNames } from './constants';
 
 const props = defineProps<{ num: number }>();
 const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | null, soldierType: string): void }>();
@@ -26,11 +29,14 @@ const soldierType = ref("");
 const image = ref("./assets/someone.png");
 const soldierTypeNames = ["", ...SoldierTypeNames];
 const busyoStore = useBusyoStore();
+const rank = ref<string>("");
 
 const onChanged = (event: Event) => {
     let busyo: Busyo | null = null;
-    if(busyoId.value && soldierType.value){
+    rank.value = "";
+    if(busyoId.value){
         busyo = busyoStore.getBusyoById(busyoId.value);
+        rank.value = Ranks[busyo.rank];
     }
     emits("changed", props.num, busyo, soldierType.value);
 };
@@ -40,7 +46,7 @@ const onChanged = (event: Event) => {
 <style scoped>
 .unit-edit {
     width: 110px;
-    height: 150px;
+    height: 180px;
     border: 1px solid gray;
     margin: 4px;
     padding: 4px;

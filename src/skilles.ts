@@ -32,7 +32,9 @@ class BaseSkill implements Skill {
   }
 
   getProbability(args: SkillArgs): number {
-    const t = this.ratio + args.totalAdditionalProbability;
+    console.log(args.rankBonus);
+    
+    const t = this.ratio + args.totalAdditionalProbability + args.rankBonus;
     return t >= 1 ? 1 : t;
   }
 
@@ -84,7 +86,7 @@ class Test extends BaseSkill {
     const m: ParameterMatrix = new ParameterMatrix();
     m.setAll(effect);
     args.putResult(brigadeIndex, m);
-    console.log(`Skill: ${this.name}, Effect: ${effect} (Probability: ${probability})`);
+    console.log(`Skill: ${this.name}, Effect: ${this.effect} (Probability: ${probability})`);
   }
 }
 

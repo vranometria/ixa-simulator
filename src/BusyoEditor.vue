@@ -21,15 +21,7 @@
             <option value="8.5">8.5</option>
         </select></label>
     <label for="rank" class="item">ランク: <select v-model="rank">
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">限界突破</option>
-            <option value="7">極限突破</option>
-            <option value="8">天限突破</option>
+            <option v-for="(value, key) in Ranks" :key="key" :value="key">{{ value }}</option>
         </select></label>
     <label for="attack" class="item">攻撃力: <input id="attack" type="number" v-model="attack" :class="errors['attack']" /></label>
     <label for="defense" class="item">防御力: <input id="defense" type="number" v-model="defense" :class="errors['defense']" /></label>
@@ -58,7 +50,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useBusyoStore } from './store/busyoStore';
-import { Role } from './constants';
+import { Ranks, Role } from './constants';
 import { Busyo } from './models';
 import { createSkill, getSkillNames } from './skilles';
 const busyoName = ref('');
@@ -84,6 +76,7 @@ const clear = () => {
     defense.value = 0;
     strategy.value = 0;
     forceSize.value = 0;
+    rank.value = 0;
     skill1.value = "";
     skill2.value = "";
     skill3.value = "";
@@ -112,7 +105,7 @@ const save = () => {
     const busyo = new Busyo();
     busyo.name = busyoName.value;
     busyo.cost = busyoCost.value;
-    busyo.rank = rank.value;
+    busyo.rank = Number(rank.value);
     busyo.role = role.value;
     busyo.attack = attack.value;
     busyo.defense = defense.value;
