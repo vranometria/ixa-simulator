@@ -113,6 +113,7 @@ const save = () => {
     busyo.name = busyoName.value;
     busyo.cost = busyoCost.value;
     busyo.rank = rank.value;
+    busyo.role = role.value;
     busyo.attack = attack.value;
     busyo.defense = defense.value;
     busyo.strategy = strategy.value;

@@ -58,6 +58,7 @@ export const useFormationStore = defineStore("formation", {
         skillArgs.totalAdditionalProbability = (() => {
           let t = 0;
           t += skillArgs.formationPreEffect.additionalProbability.all;
+          
           if (unit.busyo.role == Role.Princess) {
             t += skillArgs.formationPreEffect.additionalProbability.princess;
             const bf = skillArgs.brigadePreEffects[brigadeIndex];

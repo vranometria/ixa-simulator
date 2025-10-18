@@ -31,6 +31,11 @@ class BaseSkill implements Skill {
     this.imitable = options.immediate ?? true;
   }
 
+  getProbability(args: SkillArgs): number {
+    const t = this.ratio + args.totalAdditionalProbability;
+    return t >= 1 ? 1 : t;
+  }
+
   preEffect(args: SkillArgs): void {
     return;
   }
@@ -70,14 +75,16 @@ class ImitateSkill extends BaseSkill {
 
 class Test extends BaseSkill {
   constructor() {
-    super("Test", SkillRarity.S, { ratio: 1, effect: 1 });
+    super("Test", SkillRarity.S, { ratio: 0.5, effect: 1 });
   }
   culcEffect(args: SkillArgs): void {
     const brigadeIndex = args.getBrigadeIndex(this.busyo);
-    const effect = this.effect * this.ratio;
+    const probability = this.getProbability(args);
+    const effect = this.effect * probability;
     const m: ParameterMatrix = new ParameterMatrix();
     m.setAll(effect);
     args.putResult(brigadeIndex, m);
+    console.log(`Skill: ${this.name}, Effect: ${effect} (Probability: ${probability})`);
   }
 }
 
@@ -106,16 +113,18 @@ class 針葉浄美 extends BaseSkill {
   }
 
   preEffect(args: SkillArgs): void {
-    const lineNumber = args.getBrigadeIndex(this.busyo);
-    args.brigadePreEffects[lineNumber].additionalProbability.princess += 0.1;
+    const index = args.getBrigadeIndex(this.busyo);
+    args.brigadePreEffects[index].additionalProbability.princess += 0.1;
   }
 
   culcEffect(args: SkillArgs): void {
     const brigadeIndex = args.getBrigadeIndex(this.busyo);
-    const effect = (this.effect + args.totalAdditionalProbability) * this.ratio;
+    const probability = this.getProbability(args);
+    const effect = (this.effect * probability);
     const m: ParameterMatrix = new ParameterMatrix();
     m.setAll(effect);
     args.putResult(brigadeIndex, m);
+    console.log(`Skill: ${this.name}, Effect: ${effect} (Probability: ${probability})`);
   }
 }
 
