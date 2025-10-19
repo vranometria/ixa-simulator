@@ -39,7 +39,7 @@ export class Brigade {
     
     belongs(busyo: Busyo): boolean {
         if(!busyo) return false;
-        return this.units.some(u => u.busyo.id === busyo.id);
+        return this.units.some(u => u && u.busyo.id === busyo.id);
     }
 
     putUnit(unitIndex: number, busyo: Busyo, soldierType: string) {
@@ -48,6 +48,13 @@ export class Brigade {
 
     getUnitCount() {
         return this.units.filter( u => u != null && u.busyo && u.soldierType ).length;
+    }
+
+    getCost(): number {
+        return this.units.reduce( (sum, u) => {
+            if(u == null || u.busyo == null) return sum;
+            return sum + u.busyo.cost;
+        }, 0);
     }
 
     getTotalRank(): number {

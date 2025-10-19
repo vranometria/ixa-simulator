@@ -104,7 +104,7 @@ const save = () => {
 
     const busyo = new Busyo();
     busyo.name = busyoName.value;
-    busyo.cost = busyoCost.value;
+    busyo.cost = Number(busyoCost.value);
     busyo.rank = Number(rank.value);
     busyo.role = role.value;
     busyo.attack = attack.value;

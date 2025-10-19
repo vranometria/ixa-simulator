@@ -22,6 +22,12 @@ export const useFormationStore = defineStore("formation", {
         }, 0);
       };
     },
+    AllCost: (state): number => {
+      if (!state.formations.length) return 0;
+      return state.formations.reduce((sum: number, brigade: Brigade) => {
+        return sum + brigade.getCost();
+      }, 0);
+    },
   },
   actions: {
     putUnit(
