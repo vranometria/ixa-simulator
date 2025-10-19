@@ -1,4 +1,5 @@
-import type { Soldier } from "./types";
+import { readonly } from "vue";
+import type { Soldier as ISoldier } from "./types";
 
 export enum SkillRarity {
     SSS = "SSS",
@@ -28,14 +29,120 @@ export enum SoldierCategory {
     Weapon = "weapon",
 }
 
-export class Akazonae implements Soldier {
-    name = "赤備え";
+class Test implements ISoldier {
+    name = "Test";
     category = SoldierCategory.Cavalry;
     attack = 100;
     defense = 100;
+    distraction = 100;
+    speed = 100;
 }
 
-export const SoldierTypeNames = [ "武士", "赤備え", "弓騎馬", "鉄砲足軽", "騎馬鉄砲", "炮烙火矢", "穴太衆", "雑衆衆" ] as const;
+class 赤備え implements ISoldier {
+    name = "赤備え";
+    category = SoldierCategory.Cavalry;
+    attack = 26;
+    defense = 26;
+    distraction = 3;
+    speed = 22;
+}
+
+class 母衣衆 implements ISoldier {
+    name = "母衣衆";
+    category = SoldierCategory.Cavalry;
+    attack = 27;
+    defense = 27;
+    speed = 23;
+    distraction = 7;
+}
+
+class 武士 implements ISoldier {
+    name = "武士";
+    category = SoldierCategory.Lancer;
+    attack = 26;
+    defense = 27;
+    speed = 17;
+    distraction = 5;
+}
+
+class 鉄砲足軽 implements ISoldier {
+    name = "鉄砲足軽";
+    category = SoldierCategory.Lancer;
+    attack = 30;
+    defense = 32;
+    speed = 17;
+    distraction = 10;
+}
+
+class 弓騎馬 implements ISoldier {
+    name = "弓騎馬";
+    category = SoldierCategory.Archer;
+    attack = 27;
+    defense = 26;
+    speed = 21;
+    distraction = 3;
+}
+
+class 騎馬鉄砲 implements ISoldier {
+    name = "騎馬鉄砲";
+    category = SoldierCategory.Cavalry;
+    attack = 31;
+    defense = 31;
+    speed = 20;
+    distraction = 10;
+}
+
+class 炮烙火矢 implements ISoldier {
+    name = "炮烙火矢";
+    category = SoldierCategory.Archer;
+    attack = 32;
+    defense = 30;
+    speed = 16;
+    distraction = 12;
+}
+
+class 穴太衆 implements ISoldier {
+    name = "穴太衆";
+    category = SoldierCategory.Weapon;
+    attack = 25;
+    defense = 25;
+    speed = 15;
+    distraction = 15;
+}
+
+class 雑衆衆 implements ISoldier {
+    name = "雑衆衆";
+    category = SoldierCategory.Weapon;
+    attack = 32;
+    defense = 32;
+    speed = 19;
+    distraction = 17;
+}
+
+class Soldiers {
+    readonly list: ISoldier[] = [
+        new Test(),
+        new 赤備え(),
+        new 母衣衆(),
+        new 武士(),
+        new 鉄砲足軽(),
+        new 弓騎馬(),
+        new 騎馬鉄砲(),
+        new 炮烙火矢(),
+        new 穴太衆(),
+        new 雑衆衆(),
+    ];
+
+    readonly Names = this.list.map( s => s.name );
+
+    readonly map: Record<string, ISoldier> = this.list.reduce( (acc, s) => {
+        acc[s.name] = s;
+        return acc;
+    }, {} as Record<string, ISoldier> );
+}
+
+const soldiersInstance = new Soldiers();
+export const SoldierType = soldiersInstance;
 
 /** スキル発動確率上昇値一覧 */
 export const RankBonus: Record<number, number> = {

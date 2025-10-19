@@ -11,6 +11,8 @@ export interface Soldier {
     category: SoldierCategory;
     attack: number;
     defense: number;
+    speed: number;
+    distraction: number;
 }
 
 export interface AdditionalProbability {

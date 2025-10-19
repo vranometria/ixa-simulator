@@ -1,4 +1,4 @@
-import { Akazonae, RankBonus, Role, SoldierCategory } from "./constants";
+import { RankBonus, Role } from "./constants";
 import { Skill } from "./skilles";
 import type { AdditionalProbability, Unit } from "./types.d.ts";
 
@@ -140,34 +140,6 @@ export class SkillArgs {
     }
 }
 
-export class SoldierFactory {
-
-    static akazonae = new Akazonae();
-
-    static get(type: string) {
-        switch(type) {
-            case "赤備え":
-                return SoldierFactory.akazonae;
-            default:
-                throw new Error(`Unknown soldier type: ${type}`);
-        }
-    }
-
-    static getDifference(type: string) {
-        const soldier = SoldierFactory.get(type);
-        return soldier.defense;
-    }
-
-    static getCategory(soldierType: string): keyof ParameterMatrix {
-        switch(soldierType) {
-            case "赤備え":
-                return SoldierCategory.Cavalry;
-            default:
-                throw new Error(`Unknown soldier type: ${soldierType}`);
-        }
-    }
-}
-
 export class ParameterMatrix {
     lancer: number;
     cavalry: number;
@@ -194,6 +166,15 @@ export class ParameterMatrix {
         m.cavalry = this.cavalry + other.cavalry;
         m.archer = this.archer + other.archer;
         m.weapon = this.weapon + other.weapon;
+        return m;
+    }
+
+    multiple(other : ParameterMatrix): ParameterMatrix {
+        const m = new ParameterMatrix();
+        m.lancer = this.lancer * other.lancer;
+        m.cavalry = this.cavalry * other.cavalry;
+        m.archer = this.archer * other.archer;
+        m.weapon = this.weapon * other.weapon;
         return m;
     }
 }

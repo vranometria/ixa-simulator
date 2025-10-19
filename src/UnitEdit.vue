@@ -10,7 +10,7 @@
         </select>
         <select class="item" v-model="soldierType" @change="onChanged">
             <option value=""></option>
-            <option v-for="type in soldierTypeNames" :key="type" :value="type">{{ type }}</option>
+            <option v-for="type in SoldierType.Names" :key="type" :value="type">{{ type }}</option>
         </select>
     </div>
 </template>
@@ -19,7 +19,7 @@
 import { ref } from 'vue';
 import { useBusyoStore } from './store/busyoStore';
 import { Busyo } from './models';
-import { Ranks, SoldierTypeNames } from './constants';
+import { Ranks, SoldierType } from './constants';
 
 const props = defineProps<{ num: number }>();
 const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | null, soldierType: string): void }>();
@@ -27,7 +27,6 @@ const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | null, s
 const busyoId = ref("");
 const soldierType = ref("");
 const image = ref("./assets/someone.png");
-const soldierTypeNames = ["", ...SoldierTypeNames];
 const busyoStore = useBusyoStore();
 const rank = ref<string>("");
 
