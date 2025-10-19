@@ -2,24 +2,34 @@
     <div class="formation-editor">
         <section>
             <div v-for="num in [1, 2, 3, 4, 5, 6]">
-                <BrigadeEditor @changed="change" :num="num" />
+                <BrigadeEditor @changed="onChange" :num="num" />
             </div>
         </section>
         <section class="right-pane">
-            <div>
-                総コスト: {{ store.AllCost }}
+            <div :class="isCostOver()">
+                総コスト: {{ store.AllCost - costReduction }} ({{ store.AllCost }}) / 69
             </div>
-
+            <div>
+                コスト削減: {{ costReduction }}
+            </div>
         </section>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import BrigadeEditor from './BrigadeEditor.vue';
 import { useFormationStore } from './store/formationStore';
 const store = useFormationStore();
-const change = () => {
-    console.log('change');   
+const costReduction = ref(0);
+
+const onChange = () => {
+    const skillArgs = store.PreEffect;
+    costReduction.value = skillArgs.getTotalCostReduction();
+};
+
+const isCostOver = () => {
+    return store.AllCost - costReduction.value > 69 ? 'over-cost' : '';
 };
 </script>
 
@@ -38,5 +48,10 @@ const change = () => {
     display: block;
     width: 300px;
     height: 200px;
+}
+
+.over-cost {
+    color: red;
+    font-weight: bold;
 }
 </style>

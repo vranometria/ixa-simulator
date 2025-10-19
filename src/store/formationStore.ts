@@ -15,12 +15,10 @@ export const useFormationStore = defineStore("formation", {
     ] as Brigade[],
   }),
   getters: {
-    getAllUnitCount(): () => number {
-      return () => {
-        return this.formations.reduce((sum: number, brigade: Brigade) => {
-          return sum + brigade.getUnitCount();
-        }, 0);
-      };
+    AllUnitCount: (state): number => {
+      return state.formations.reduce((sum: number, brigade: Brigade) => {
+        return sum + brigade.getUnitCount();
+      }, 0);
     },
     AllCost: (state): number => {
       if (!state.formations.length) return 0;
@@ -28,7 +26,23 @@ export const useFormationStore = defineStore("formation", {
         return sum + brigade.getCost();
       }, 0);
     },
+    PreEffect(): SkillArgs {
+      const skillArgs = new SkillArgs();
+      skillArgs.brigades = this.formations;
+      skillArgs.numberOfUnits = this.AllUnitCount;
+
+      for (const brigade of this.formations as Brigade[]) {
+        for (const unit of brigade.units) {
+          if (unit == null) continue;
+          unit.busyo.skills.forEach((skill: Skill) => {
+            skill.preEffect(skillArgs);
+          });
+        }
+      }
+      return skillArgs;
+    },
   },
+
   actions: {
     putUnit(
       brigadeIndex: number,
@@ -44,18 +58,7 @@ export const useFormationStore = defineStore("formation", {
     },
 
     getParameterMatrix(brigadeIndex: number): ParameterMatrix {
-      const skillArgs = new SkillArgs();
-      skillArgs.brigades = this.formations;
-      skillArgs.numberOfUnits = this.getAllUnitCount();
-
-      for (const brigade of this.formations as Brigade[]) {
-        for (const unit of brigade.units) {
-          if (unit == null) continue;
-          unit.busyo.skills.forEach((skill: Skill) => {
-            skill.preEffect(skillArgs);
-          });
-        }
-      }     
+      const skillArgs = this.PreEffect;
 
       const currentBrigade = this.formations[brigadeIndex] as Brigade;
       skillArgs.lineNumber = brigadeIndex + 1;

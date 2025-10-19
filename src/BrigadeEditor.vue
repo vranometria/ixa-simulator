@@ -28,6 +28,9 @@ import ParameterView from './ParameterView.vue';
 import { useFormationStore } from './store/formationStore';
 import UnitEdit from './UnitEdit.vue';
 
+const emits = defineEmits<{
+    (e: 'changed'): void;
+}>();
 const props = defineProps<{
     num: number;
 }>();
@@ -43,6 +46,7 @@ const changed = (unitNum: number, busyo: Busyo | null, soldierType: string) => {
     formationStore.putUnit(props.num - 1, unitNum - 1, busyo, soldierType);
     rankBonus.value = formationStore.formations[props.num - 1].getRankBonus();
     strategyBonus.value = formationStore.formations[props.num - 1].getStrategyBonus();
+    emits('changed');
 };
 </script>
 

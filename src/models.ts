@@ -6,10 +6,12 @@ class PreEffect {
     additionalCost: number;
     additionalProbability: AdditionalProbability;
     additionalTakuetsuProbability: AdditionalProbability;
+    reduceCost: number;
     constructor() {
         this.additionalCost = 0;
         this.additionalProbability = { all: 0, princess: 0 };
         this.additionalTakuetsuProbability = { all: 0, princess: 0 };
+        this.reduceCost = 0;
     }
 }
 
@@ -144,6 +146,16 @@ export class SkillArgs {
             matrix.weapon += result.weapon;
         }
         return matrix;
+    }
+
+    getTotalCostReduction(): number {
+        let totalReduction = 0;
+        console.log("b", this.brigadePreEffects);
+        
+        for (const brigade of this.brigadePreEffects) {
+            totalReduction += brigade.reduceCost;
+        }
+        return totalReduction;
     }
 }
 

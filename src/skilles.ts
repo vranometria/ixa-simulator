@@ -1,14 +1,6 @@
 import { SkillRarity } from "./constants";
 import { Busyo, ParameterMatrix, SkillArgs } from "./models";
 
-const skillDefMap: Record<string, () => Skill> = {
-  Test: () => new Test(),
-  天鷹炯眼: () => new 天鷹炯眼(),
-  針葉浄美: () => new 針葉浄美(),
-  清賢ノ遊姫: () => new 清賢ノ遊姫(),
-  遁世影武者: () => new 遁世影武者(),
-};
-
 interface SkillOption {
   ratio?: number;
   effect?: number;
@@ -32,7 +24,11 @@ class BaseSkill implements Skill {
   }
 
   getProbability(args: SkillArgs): number {
-    const t = this.ratio + args.totalAdditionalProbability + args.rankBonus + args.strategyBonus;
+    const t =
+      this.ratio +
+      args.totalAdditionalProbability +
+      args.rankBonus +
+      args.strategyBonus;
     return t >= 1 ? 1 : t;
   }
 
@@ -42,6 +38,21 @@ class BaseSkill implements Skill {
 
   culcEffect(args: SkillArgs): void {
     throw new Error("Method not implemented.");
+  }
+
+  reduceCost(args: SkillArgs, effectValue: number): void {
+    const brigadeIndex = args.getBrigadeIndex(this.busyo);
+    const reduceValue = this.busyo.cost > effectValue ? effectValue : this.busyo.cost;
+    args.brigadePreEffects[brigadeIndex].reduceCost += reduceValue;
+  }
+
+  culcEffectAll(args: SkillArgs): void {
+    const brigadeIndex = args.getBrigadeIndex(this.busyo);
+    const probability = this.getProbability(args);
+    const effect = this.effect * probability;
+    const m: ParameterMatrix = new ParameterMatrix();
+    m.setAll(effect);
+    args.putResult(brigadeIndex, m);
   }
 }
 
@@ -78,13 +89,21 @@ class Test extends BaseSkill {
     super("Test", SkillRarity.S, { ratio: 0.5, effect: 1 });
   }
   culcEffect(args: SkillArgs): void {
-    const brigadeIndex = args.getBrigadeIndex(this.busyo);
-    const probability = this.getProbability(args);
-    const effect = this.effect * probability;
-    const m: ParameterMatrix = new ParameterMatrix();
-    m.setAll(effect);
-    args.putResult(brigadeIndex, m);
-    console.log(`Skill: ${this.name}, Effect: ${this.effect} (Probability: ${probability})`);
+    super.culcEffectAll(args);
+  }
+}
+
+class 龍驤虎躍 extends BaseSkill {
+  constructor() {
+    super("龍驤虎躍", SkillRarity.S, { ratio: 0.6, effect: 8.1 });
+  }
+
+  preEffect(args: SkillArgs): void {
+    this.reduceCost(args, 1);
+  }
+
+  culcEffect(args: SkillArgs): void {
+    super.culcEffectAll(args);
   }
 }
 
@@ -120,11 +139,10 @@ class 針葉浄美 extends BaseSkill {
   culcEffect(args: SkillArgs): void {
     const brigadeIndex = args.getBrigadeIndex(this.busyo);
     const probability = this.getProbability(args);
-    const effect = (this.effect * probability);
+    const effect = this.effect * probability;
     const m: ParameterMatrix = new ParameterMatrix();
     m.setAll(effect);
     args.putResult(brigadeIndex, m);
-    console.log(`Skill: ${this.name}, Effect: ${effect} (Probability: ${probability})`);
   }
 }
 
@@ -156,8 +174,6 @@ class 遁世影武者 extends ImitateSkill {
   }
 }
 
-
-
 /** スキル名一覧を取得する */
 export const getSkillNames = () => Object.keys(skillDefMap);
 
@@ -173,12 +189,37 @@ export const createSkill = (name: string, busyo: Busyo): Skill | null => {
 };
 
 export interface Skill {
-    busyo: Busyo;
-    name: string;
-    rarity: SkillRarity;
-    imitable: boolean; // 模倣可能かどうか
-    ratio: number;
-    effect: number;
-    preEffect(args: SkillArgs): void;
-    culcEffect(args: SkillArgs): void;
+  busyo: Busyo;
+  name: string;
+  rarity: SkillRarity;
+  imitable: boolean; // 模倣可能かどうか
+  ratio: number;
+  effect: number;
+  preEffect(args: SkillArgs): void;
+  culcEffect(args: SkillArgs): void;
 }
+
+
+const skillList: Skill[] = [
+  new Test(),
+  // し
+  new 針葉浄美(),
+  // せ
+  new 清賢ノ遊姫(),
+  // て
+  new 天鷹炯眼(),
+  // と
+  new 遁世影武者(),
+  // り
+  new 龍驤虎躍(),
+];
+
+const skillDefMap: Record<string, () => Skill> = skillList.reduce(
+  (map, skill) => {
+    map[skill.name] = () => {
+      return skill;
+    };
+    return map;
+  },
+  {} as Record<string, () => Skill>
+);
