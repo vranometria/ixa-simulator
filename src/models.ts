@@ -1,6 +1,6 @@
 import { RankBonus, Role, SoldierCategory, SoldierType } from "./constants";
-import { Skill } from "./skilles";
-import type { AdditionalProbability, Unit } from "./types.d.ts";
+import { createSkill, Skill } from "./skilles";
+import type { AdditionalProbability, BusyoInfo, Unit } from "./types.d.ts";
 
 class PreEffect {
   additionalCost: number;
@@ -39,6 +39,34 @@ export class Busyo {
 
   getFirstSkill(): Skill | null {
     return this.skills[0] ?? null;
+  }
+
+  toBusyoInfo(): BusyoInfo {
+    return {
+      id: this.id,
+      name: this.name,
+      cost: this.cost,
+      role: this.role,
+      forceSize: this.forceSize,
+      rank: this.rank,
+      attack: this.attack,
+      defense: this.defense,
+      strategy: this.strategy,
+      skillNames: this.skills.map((s) => s.name),
+    };
+  }
+
+  loadFromBusyoInfo(info: BusyoInfo): void {
+    this.id = info.id;
+    this.name = info.name;
+    this.cost = info.cost;
+    this.role = Role[info.role as keyof typeof Role];
+    this.forceSize = info.forceSize;
+    this.rank = info.rank;
+    this.attack = info.attack;
+    this.defense = info.defense;
+    this.strategy = info.strategy;
+    this.skills = info.skillNames.map(name => createSkill(name, this));
   }
 }
 

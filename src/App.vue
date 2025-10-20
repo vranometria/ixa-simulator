@@ -14,12 +14,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import BusyoEditor from './renderer/BusyoEditor.vue';
 import FormationEditor from './renderer/FormationEditor.vue';
 import { useBusyoStore } from './store/busyoStore';
-const busyoStore = useBusyoStore();
 const page = ref("0");
+const busyoStore = useBusyoStore();
+
+onMounted(async () => {
+    await busyoStore.loadBusyos();
+});
 
 function onClicked(e: PointerEvent) {
     const div:HTMLDivElement = e.currentTarget as HTMLDivElement;

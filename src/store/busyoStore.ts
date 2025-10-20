@@ -13,9 +13,14 @@ export const useBusyoStore = defineStore('busyo', {
     actions: {
         addBusyo(busyo : Busyo) {
             this.busyos.push(busyo);
+            const array = this.busyos.map((b:Busyo) => b.toBusyoInfo());
+            window.electronApi.saveBusyo(array);
         },
         getBusyoById(id: string): Busyo | undefined {
             return this.busyos.find((b: Busyo) => b.id === id);
+        },
+        async loadBusyos() {
+            this.busyos = await window.electronApi.loadBusyo();
         }
     },
 });
