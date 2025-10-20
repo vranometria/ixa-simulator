@@ -58,7 +58,7 @@ export const useFormationStore = defineStore("formation", {
     },
 
     getParameterMatrix(brigadeIndex: number): ParameterMatrix {
-      const skillArgs = this.PreEffect;
+      const skillArgs: SkillArgs = this.PreEffect;
 
       const currentBrigade = this.formations[brigadeIndex] as Brigade;
       skillArgs.lineNumber = brigadeIndex + 1;
@@ -69,16 +69,9 @@ export const useFormationStore = defineStore("formation", {
       for (const unit of currentBrigade.units) {
         if (currentBrigade == null || unit == null) continue;
         skillArgs.init();
-        skillArgs.totalAdditionalProbability = (() => {
-          let t = 0;
-          t += skillArgs.formationPreEffect.additionalProbability.all;
-          if (unit.busyo.role == Role.Princess) {
-            t += skillArgs.formationPreEffect.additionalProbability.princess;
-            const bf = skillArgs.brigadePreEffects[brigadeIndex];
-            t += bf.additionalProbability.princess;
-          }
-          return t;
-        })();
+
+        // スキル発動率加算を計算する
+        skillArgs.totalAdditionalProbability = Procs.culcTotalAdditionalProbability(skillArgs, unit, brigadeIndex);
 
         unit.busyo.skills.forEach((skill: Skill) => {
           skill.culcEffect(skillArgs);
@@ -88,13 +81,23 @@ export const useFormationStore = defineStore("formation", {
           skillArgs.getParameterMatrix()
         );
       }
+      
+      // 旅団間スキル効果の反映
+      skillEffectMatrix = skillEffectMatrix.add(skillArgs.brigadePreEffects[brigadeIndex].additionalEffect);      
 
+      // 部隊防御力の実効値計算
       const busyoPowerMatrix = Procs.culcBusyoPowerMatrix(
         skillArgs,
         currentBrigade.units
       );
 
+      console.log("k",busyoPowerMatrix);
+
+
+      // スキルによる上昇値を計算
       skillEffectMatrix = busyoPowerMatrix.multiple(skillEffectMatrix);
+
+      // 素の防御力にスキル効果を加算して返す
       return busyoPowerMatrix.add(skillEffectMatrix);
     },
   },

@@ -168,6 +168,29 @@ class 清賢ノ遊姫 extends BaseSkill {
   }
 }
 
+class 豊州ノ雅王 extends BaseSkill {
+  constructor() {
+    super("豊州ノ雅王", SkillRarity.B, { ratio: 1, effect: 4.2 });
+  }
+
+  // 本丸防御陣形の第二列目以降の部隊にもこのスキルの効果がかかる
+  preEffect(args: SkillArgs): void {
+    const brigadeIndex = args.getBrigadeIndex(this.busyo);
+    const m = new ParameterMatrix();
+    m.setAll(4.2);
+
+    for(let i = 1; i < args.brigadePreEffects.length; i++) {
+      if (i !== brigadeIndex) {
+        args.brigadePreEffects[i].additionalEffect = args.brigadePreEffects[i].additionalEffect.add(m);
+      }
+    }
+  }
+
+  culcEffect(args: SkillArgs): void {
+    super.culcEffectAll(args);
+  }
+}
+
 class 遁世影武者 extends ImitateSkill {
   constructor() {
     super("遁世影武者", SkillRarity.B, { ratio: 1 });
@@ -209,6 +232,7 @@ const skillList: Skill[] = [
   // て
   new 天鷹炯眼(),
   // と
+  new 豊州ノ雅王(),
   new 遁世影武者(),
   // り
   new 龍驤虎躍(),
