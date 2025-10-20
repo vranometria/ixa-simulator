@@ -15,8 +15,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import BusyoEditor from './BusyoEditor.vue';
-import FormationEditor from './FormationEditor.vue';
+import BusyoEditor from './renderer/BusyoEditor.vue';
+import FormationEditor from './renderer/FormationEditor.vue';
 import { useBusyoStore } from './store/busyoStore';
 const busyoStore = useBusyoStore();
 const page = ref("0");

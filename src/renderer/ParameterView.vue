@@ -18,9 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ParameterMatrix } from './models';
-
-
+import { ParameterMatrix } from '@/models';
 const props = defineProps<{
     param : ParameterMatrix
 }>();

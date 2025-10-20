@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import BrigadeEditor from './BrigadeEditor.vue';
-import { useFormationStore } from './store/formationStore';
+import { useFormationStore } from '../store/formationStore';
 const store = useFormationStore();
 const costReduction = ref(0);
 

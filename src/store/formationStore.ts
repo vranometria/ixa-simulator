@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { Brigade, Busyo, ParameterMatrix, SkillArgs } from "../models";
+import { Brigade, Busyo, ParameterMatrix, Procs, SkillArgs } from "../models";
 import { Role } from "../constants";
 import { Skill } from "../skilles";
 
@@ -65,9 +65,9 @@ export const useFormationStore = defineStore("formation", {
       skillArgs.rankBonus = currentBrigade.getRankBonus();
       skillArgs.strategyBonus = currentBrigade.getStrategyBonus();
 
-      let m = new ParameterMatrix();
+      let skillEffectMatrix = new ParameterMatrix();
       for (const unit of currentBrigade.units) {
-        if(currentBrigade == null || unit == null) continue;
+        if (currentBrigade == null || unit == null) continue;
         skillArgs.init();
         skillArgs.totalAdditionalProbability = (() => {
           let t = 0;
@@ -83,9 +83,19 @@ export const useFormationStore = defineStore("formation", {
         unit.busyo.skills.forEach((skill: Skill) => {
           skill.culcEffect(skillArgs);
         });
-        m = m.add(skillArgs.getParameterMatrix());
+
+        skillEffectMatrix = skillEffectMatrix.add(
+          skillArgs.getParameterMatrix()
+        );
       }
-      return m;
+
+      const busyoPowerMatrix = Procs.culcBusyoPowerMatrix(
+        skillArgs,
+        currentBrigade.units
+      );
+
+      skillEffectMatrix = busyoPowerMatrix.multiple(skillEffectMatrix);
+      return busyoPowerMatrix.add(skillEffectMatrix);
     },
   },
 });

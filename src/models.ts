@@ -1,4 +1,4 @@
-import { RankBonus, Role } from "./constants";
+import { RankBonus, Role, SoldierCategory, SoldierType } from "./constants";
 import { Skill } from "./skilles";
 import type { AdditionalProbability, Unit } from "./types.d.ts";
 
@@ -7,11 +7,14 @@ class PreEffect {
     additionalProbability: AdditionalProbability;
     additionalTakuetsuProbability: AdditionalProbability;
     reduceCost: number;
+    busyoDiffenceEffect: Record<string, number>;
+
     constructor() {
         this.additionalCost = 0;
         this.additionalProbability = { all: 0, princess: 0 };
         this.additionalTakuetsuProbability = { all: 0, princess: 0 };
         this.reduceCost = 0;
+        this.busyoDiffenceEffect = {};
     }
 }
 
@@ -195,5 +198,38 @@ export class ParameterMatrix {
         m.archer = this.archer * other.archer;
         m.weapon = this.weapon * other.weapon;
         return m;
+    }
+}
+
+export class Procs {
+    static culcBusyoPowerMatrix(skillArgs: SkillArgs, units: Unit[]) : ParameterMatrix {
+        const matrix = new ParameterMatrix();
+
+        for (const unit of units) {
+            if (unit == null) continue;
+
+            const busyo = unit.busyo;
+            const brigadeIndex = skillArgs.getBrigadeIndex(busyo);
+            const busyoEffect:number = skillArgs.brigadePreEffects[brigadeIndex].busyoDiffenceEffect[busyo.id] ?? 1;
+            const soldierDefence:number = SoldierType.map[unit.soldierType]?.defense ?? 1;
+            const value:number = (busyo.defense * busyoEffect) + (busyo.forceSize * soldierDefence);
+
+            switch (SoldierType.getElementByName(unit.soldierType)) {
+                case SoldierCategory.Lancer:
+                    matrix.lancer += value;
+                    break;
+                case SoldierCategory.Cavalry:
+                    matrix.cavalry += value;
+                    break;
+                case SoldierCategory.Archer:
+                    matrix.archer += value;
+                    break;
+                case SoldierCategory.Weapon:
+                    matrix.weapon += value;
+                    break;
+            }
+        }
+
+        return matrix;
     }
 }

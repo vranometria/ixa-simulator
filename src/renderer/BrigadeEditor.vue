@@ -23,10 +23,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Busyo } from './models';
-import ParameterView from './ParameterView.vue';
-import { useFormationStore } from './store/formationStore';
+import { Busyo } from '../models';
+import { useFormationStore } from '../store/formationStore';
 import UnitEdit from './UnitEdit.vue';
+import ParameterView from './ParameterView.vue';
 
 const emits = defineEmits<{
     (e: 'changed'): void;

@@ -17,9 +17,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useBusyoStore } from './store/busyoStore';
-import { Busyo } from './models';
-import { Ranks, SoldierType } from './constants';
+import { useBusyoStore } from '@/store/busyoStore';
+import { Busyo } from '@/models';
+import { Ranks, SoldierType } from '@/constants';
 
 const props = defineProps<{ num: number }>();
 const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | null, soldierType: string): void }>();

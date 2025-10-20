@@ -49,10 +49,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useBusyoStore } from './store/busyoStore';
-import { Ranks, Role } from './constants';
-import { Busyo } from './models';
-import { createSkill, getSkillNames } from './skilles';
+import { useBusyoStore } from '../store/busyoStore';
+import { Ranks, Role } from '@/constants';
+import { Busyo } from '@/models';
+import { createSkill, getSkillNames } from '@/skilles';
 const busyoName = ref('');
 const busyoCost = ref(1);
 const skillNames = ["", ...getSkillNames()];

@@ -139,6 +139,12 @@ class Soldiers {
         acc[s.name] = s;
         return acc;
     }, {} as Record<string, ISoldier> );
+
+    getElementByName(name: string): SoldierCategory {
+        const element = this.map[name].category;
+        if(!element) throw new Error(`Soldier not found: ${name}`);
+        return element;
+    }
 }
 
 const soldiersInstance = new Soldiers();
