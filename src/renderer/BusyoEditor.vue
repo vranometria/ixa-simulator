@@ -1,6 +1,7 @@
 <template>
-    <label for="text" class="item">Name: <input id="text" v-model="busyoName" :class="errors['name']" /></label>
-    <label for="cost" class="item">Cost: <select v-model="busyoCost">
+    <label for="text" class="item">Name: <input id="text" v-model="busyoStore.editting.name"
+            :class="errors['name']" /></label>
+    <label for="cost" class="item">Cost: <select v-model="busyoStore.editting.cost" :class="errors['cost']">
             <option value="0">0</option>
             <option value="0.5">0.5</option>
             <option value="1">1</option>
@@ -20,27 +21,39 @@
             <option value="8">8</option>
             <option value="8.5">8.5</option>
         </select></label>
-    <label for="rank" class="item">ランク: <select v-model="rank">
+    <label for="rank" class="item">ランク: <select v-model="busyoStore.editting.rank">
             <option v-for="(value, key) in Ranks" :key="key" :value="key">{{ value }}</option>
         </select></label>
-    <label for="attack" class="item">攻撃力: <input id="attack" type="number" v-model="attack" :class="errors['attack']" /></label>
-    <label for="defense" class="item">防御力: <input id="defense" type="number" v-model="defense" :class="errors['defense']" /></label>
-    <label for="strategy" class="item">兵法: <input id="strategy" type="number" v-model="strategy" :class="errors['strategy']" /></label>
-    <label for="forceSize" class="item">指揮兵数: <input id="forceSize" type="number" v-model="forceSize" :class="errors['forceSize']" /></label>
-    <label for="role" class="item">役割: <select v-model="role" :class="errors['role']">
+    <label for="attack" class="item">攻撃力: <input id="attack" type="number" v-model="busyoStore.editting.attack"
+            :class="errors['attack']" /></label>
+    <label for="defense" class="item">防御力: <input id="defense" type="number" v-model="busyoStore.editting.defense"
+            :class="errors['defense']" /></label>
+    <label for="strategy" class="item">兵法: <input id="strategy" type="number" v-model="busyoStore.editting.strategy"
+            :class="errors['strategy']" /></label>
+    <label for="forceSize" class="item">指揮兵数: <input id="forceSize" type="number"
+            v-model="busyoStore.editting.forceSize" :class="errors['forceSize']" /></label>
+    <label for="role" class="item">役割: <select v-model="busyoStore.editting.role" :class="errors['role']">
             <option v-for="(value, key) in Role" :value="value">{{ value }}</option>
         </select></label>
-    <label for="skill1" class="item">スキル1: <select v-model="skill1" :class="errors['skill1']">
-            <option v-for="skill in skillNames" :key="skill" :value="skill">{{ skill }}</option>
+    <label for="skill1" class="item">スキル1: <select v-model="busyoStore.editting.skillNames[0]"
+            :class="errors['skill1']">
+            <option value="">-- 選択してください --</option>
+            <option v-for="skill in getSkillNames()" :key="skill" :value="skill">{{ skill }}</option>
         </select></label>
-    <label for="skill2" class="item">スキル2: <select v-model="skill2" :class="errors['skill2']">
-            <option v-for="skill in skillNames" :key="skill" :value="skill">{{ skill }}</option>
+    <label for="skill2" class="item">スキル2: <select v-model="busyoStore.editting.skillNames[1]"
+            :class="errors['skill2']">
+            <option value="">-- 選択してください --</option>
+            <option v-for="skill in getSkillNames()" :key="skill" :value="skill">{{ skill }}</option>
         </select></label>
-    <label for="skill3" class="item">スキル3: <select v-model="skill3" :class="errors['skill3']">
-            <option v-for="skill in skillNames" :key="skill" :value="skill">{{ skill }}</option>
+    <label for="skill3" class="item">スキル3: <select v-model="busyoStore.editting.skillNames[2]"
+            :class="errors['skill3']">
+            <option value="">-- 選択してください --</option>
+            <option v-for="skill in getSkillNames()" :key="skill" :value="skill">{{ skill }}</option>
         </select></label>
-    <label for="skill4" class="item">スキル4: <select v-model="skill4" :class="errors['skill4']">
-            <option v-for="skill in skillNames" :key="skill" :value="skill">{{ skill }}</option>
+    <label for="skill4" class="item">スキル4: <select v-model="busyoStore.editting.skillNames[3]"
+            :class="errors['skill4']">
+            <option value="">-- 選択してください --</option>
+            <option v-for="skill in getSkillNames()" :key="skill" :value="skill">{{ skill }}</option>
         </select></label>
 
     <button class="item" @click="save">保存</button>
@@ -51,46 +64,18 @@
 import { ref } from 'vue';
 import { useBusyoStore } from '../store/busyoStore';
 import { Ranks, Role } from '@/constants';
-import { Busyo } from '@/models';
-import { createSkill, getSkillNames } from '@/skilles';
-const busyoName = ref('');
-const busyoCost = ref(1);
-const skillNames = ["", ...getSkillNames()];
-const attack = ref(0);
-const defense = ref(0);
-const strategy = ref(0);
-const forceSize = ref(0);
-const skill1 = ref("");
-const skill2 = ref("");
-const skill3 = ref("");
-const skill4 = ref("");
-const rank = ref(0);
-const role = ref(Role.General);
+import { getSkillNames } from '@/skilles';
 const busyoStore = useBusyoStore();
 const errors = ref<{ [key: string]: string }>({});
-
-const clear = () => {
-    busyoName.value = "";
-    busyoCost.value = 1;
-    attack.value = 0;
-    defense.value = 0;
-    strategy.value = 0;
-    forceSize.value = 0;
-    rank.value = 0;
-    skill1.value = "";
-    skill2.value = "";
-    skill3.value = "";
-    skill4.value = "";
-};
 
 const validate = (): boolean => {
     errors.value = {};
 
-    if (!busyoName.value) {
+    if (!busyoStore.editting.name || busyoStore.editting.name.trim() === "") {
         errors.value["name"] = "error";
     }
 
-    if(skill1.value === "") {
+    if (busyoStore.editting.skillNames[0] === "") {
         errors.value["skill1"] = "error";
     }
 
@@ -101,19 +86,8 @@ const save = () => {
     if (!validate()) {
         return;
     }
-
-    const busyo = new Busyo();
-    busyo.name = busyoName.value;
-    busyo.cost = Number(busyoCost.value);
-    busyo.rank = Number(rank.value);
-    busyo.role = role.value;
-    busyo.attack = attack.value;
-    busyo.defense = defense.value;
-    busyo.strategy = strategy.value;
-    busyo.forceSize = forceSize.value;
-    busyo.skills = [skill1.value, skill2.value, skill3.value, skill4.value].filter(s => s).map(s => createSkill(s, busyo));
-    busyoStore.addBusyo(busyo);
-    clear();
+    busyoStore.addBusyo();
+    busyoStore.save();
 }
 </script>
 
