@@ -24,6 +24,7 @@ export const useBusyoStore = defineStore('busyo', {
         busyoNames: (state) => state.busyos.map(b => b.name),
         count : (state) => state.busyos.length,
         idAndNames : (state) => state.busyos.map(b => ({id: b.id, name: b.name})),
+        RawBusyoInfos: (state) => state.busyos.map(b => toBusyoInfo(toRaw(b))),
     },
     actions: {
         clearEditing() {
@@ -41,15 +42,38 @@ export const useBusyoStore = defineStore('busyo', {
                 skillNames: [],
             } as BusyoInfo;
         },
-        addBusyo() {
-            const busyo = new Busyo();
-            busyo.loadFromBusyoInfo(this.editting);
-            this.busyos.push(busyo);
+        editBusyo(id: string) {
+            const busyo: Busyo | undefined = this.busyos.find((b: Busyo) => b.id === id);
+            if (busyo) {
+                const b = toBusyoInfo(busyo);
+                this.editting.id = b.id;
+                this.editting.name = b.name;
+                this.editting.cost = b.cost;
+                this.editting.rank = b.rank;
+                this.editting.forceSize = b.forceSize;
+                this.editting.attack = b.attack;
+                this.editting.defense = b.defense;
+                this.editting.strategy = b.strategy;
+                this.editting.role = b.role;
+                this.editting.skillNames = b.skillNames.slice();
+            }
+            else{
+                this.clearEditing();
+            }
         },
         save(){
-            const array = this.busyos.map((b:Busyo) => toBusyoInfo(b));
-            window.electronApi.saveBusyo(array);
-            this.clearEditing();
+            const busyo = new Busyo();
+            busyo.loadFromBusyoInfo(toRaw(this.editting));
+            const index = this.busyos.findIndex((b: Busyo) => b.id === this.editting.id);
+            if (index >= 0) {
+                // update
+                this.busyos[index] = busyo;
+            } else {
+                // create
+                this.busyos.push(busyo);
+            }
+
+            window.electronApi.saveBusyo(this.RawBusyoInfos);
         },
         getBusyoById(id: string): Busyo | undefined {
             return this.busyos.find((b: Busyo) => b.id === id);

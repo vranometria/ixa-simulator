@@ -1,16 +1,16 @@
 <template>
     <div class="tabs">
-        <div :class="'tab ' + selected('0')" @click="onClicked" :value="0">
+        <div :class="'tab ' + selected('1')" @click="onClicked" :value="1">
             武将登録/編集
         </div>
-        <div :class="'tab ' + selected('1')" @click="onClicked" :value="1">
+        <div :class="'tab ' + selected('2')" @click="onClicked" :value="2">
             本丸防御陣形
         </div>
     </div>
 
-    <BusyoEditor v-if="page === '0'" />
+    <BusyoEditor v-if="page.currentPage === 1" />
 
-    <FormationEditor v-if="page === '1'" />
+    <FormationEditor v-if="page.currentPage === 2" />
 </template>
 
 <script setup lang="ts">
@@ -18,8 +18,9 @@ import { onMounted, ref } from 'vue';
 import BusyoEditor from './renderer/BusyoEditor.vue';
 import FormationEditor from './renderer/FormationEditor.vue';
 import { useBusyoStore } from './store/busyoStore';
-const page = ref("0");
+import { usePageStore } from './store/pageStore';
 const busyoStore = useBusyoStore();
+const page = usePageStore();
 
 onMounted(async () => {
     await busyoStore.loadBusyos();
@@ -27,11 +28,11 @@ onMounted(async () => {
 
 function onClicked(e: PointerEvent) {
     const div:HTMLDivElement = e.currentTarget as HTMLDivElement;
-    page.value = div.getAttribute("value");
+    page.setCurrentPage(Number(div.getAttribute("value")));
 }
 
 const selected = (val:string) => {
-    return (page.value === val) ? "true" : "false";
+    return (page.currentPage === Number(val)) ? "true" : "false";
 };
 
 </script>

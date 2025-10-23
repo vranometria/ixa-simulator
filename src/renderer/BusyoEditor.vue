@@ -86,8 +86,8 @@ const save = () => {
     if (!validate()) {
         return;
     }
-    busyoStore.addBusyo();
     busyoStore.save();
+    busyoStore.clearEditing();
 }
 </script>
 

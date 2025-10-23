@@ -3,7 +3,7 @@
         <div>
             {{ rank }}
         </div>
-        <img :src="image" alt="Unit Image" />
+        <img :src="image" alt="Unit Image" @dblclick="onDoubleClicked"/>
         <select class="item" v-model="busyoId" @change="onChanged">
             <option value=""></option>
             <option v-for="t in busyoStore.idAndNames" :key="t.id" :value="t.id">{{ t.name }}</option>
@@ -18,12 +18,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useBusyoStore } from '@/store/busyoStore';
+import { usePageStore, Pages } from '@/store/pageStore';
 import { Busyo } from '@/models';
 import { Ranks, SoldierType } from '@/constants';
 
 const props = defineProps<{ num: number }>();
 const emits = defineEmits<{ (e: "changed", index: number, busyo: Busyo | null, soldierType: string): void }>();
 
+const page = usePageStore();
 const busyoId = ref("");
 const soldierType = ref("");
 const image = ref("./assets/someone.png");
@@ -38,6 +40,12 @@ const onChanged = (event: Event) => {
         rank.value = Ranks[busyo.rank];
     }
     emits("changed", props.num, busyo, soldierType.value);
+};
+
+const onDoubleClicked = () => {
+    if(busyoId.value === "") return;
+    busyoStore.editBusyo(busyoId.value);
+    page.setCurrentPage(Pages.BusyoEditor);
 };
 </script>
 

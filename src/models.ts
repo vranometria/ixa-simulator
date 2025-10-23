@@ -2,21 +2,20 @@ import { RankBonus, Role, SoldierCategory, SoldierType } from "./constants";
 import { createSkill, Skill } from "./skilles";
 import type { AdditionalProbability, BusyoInfo, Unit } from "./types.d.ts";
 
-
 export const toBusyoInfo = (busyo: Busyo): BusyoInfo => {
-    return {
-      id: busyo.id,
-      name: busyo.name,
-      cost: busyo.cost,
-      role: busyo.role,
-      forceSize: busyo.forceSize,
-      rank: busyo.rank,
-      attack: busyo.attack,
-      defense: busyo.defense,
-      strategy: busyo.strategy,
-      skillNames: busyo.skills.map((s) => s.name),
-    };
-  }
+  return {
+    id: busyo.id,
+    name: busyo.name,
+    cost: busyo.cost,
+    role: busyo.role,
+    forceSize: busyo.forceSize,
+    rank: busyo.rank,
+    attack: busyo.attack,
+    defense: busyo.defense,
+    strategy: busyo.strategy,
+    skillNames: busyo.skills.map((s) => s.name),
+  };
+};
 
 class PreEffect {
   additionalCost: number;
@@ -67,7 +66,7 @@ export class Busyo {
     this.attack = info.attack;
     this.defense = info.defense;
     this.strategy = info.strategy;
-    this.skills = info.skillNames.map(name => createSkill(name, this));
+    this.skills = info.skillNames.map((name) => createSkill(name, this));
   }
 }
 
