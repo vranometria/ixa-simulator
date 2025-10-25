@@ -1,7 +1,14 @@
 <template>
+    <div class="mode-panel">
+        {{ mode === 'edit' ? '編集モード: ' + busyoStore.editting.id : '登録モード' }}
+        <span v-if="mode === 'edit'">
+            <button @click="changeToCreateMode">編集解除</button>
+        </span>
+    </div>
     <label for="text" class="item">Name: <input id="text" v-model="busyoStore.editting.name"
             :class="errors['name']" /></label>
     <label for="cost" class="item">Cost: <select v-model="busyoStore.editting.cost" :class="errors['cost']">
+            <option value="">-- 選択してください --</option>
             <option value="0">0</option>
             <option value="0.5">0.5</option>
             <option value="1">1</option>
@@ -22,6 +29,7 @@
             <option value="8.5">8.5</option>
         </select></label>
     <label for="rank" class="item">ランク: <select v-model="busyoStore.editting.rank">
+            <option value="">-- 選択してください --</option>
             <option v-for="(value, key) in Ranks" :key="key" :value="key">{{ value }}</option>
         </select></label>
     <label for="attack" class="item">攻撃力: <input id="attack" type="number" v-model="busyoStore.editting.attack"
@@ -67,12 +75,21 @@ import { Ranks, Role } from '@/constants';
 import { getSkillNames } from '@/skilles';
 const busyoStore = useBusyoStore();
 const errors = ref<{ [key: string]: string }>({});
+const mode = ref<"new" | "edit">(busyoStore.editting.id ? "edit" : "new");
 
 const validate = (): boolean => {
     errors.value = {};
 
+    if (busyoStore.editting.cost === null || busyoStore.editting.cost === "") {
+        errors.value["cost"] = "error";
+    }
+
     if (!busyoStore.editting.name || busyoStore.editting.name.trim() === "") {
         errors.value["name"] = "error";
+    }
+
+    if (!busyoStore.editting.rank || busyoStore.editting.rank === "") {
+        errors.value["rank"] = "error";
     }
 
     if (busyoStore.editting.skillNames[0] === "") {
@@ -89,6 +106,11 @@ const save = () => {
     busyoStore.save();
     busyoStore.clearEditing();
 }
+
+const changeToCreateMode = () => {
+    busyoStore.clearEditing();
+    mode.value = "new";
+};
 </script>
 
 <style scoped>
@@ -99,5 +121,12 @@ const save = () => {
 
 .error {
     background-color: red;
+}
+
+.mode-panel {
+    padding: 8px;
+    margin-bottom: 16px;
+    border: 1px solid gray;
+    background-color: #f0f0f0;
 }
 </style>

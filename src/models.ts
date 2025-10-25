@@ -6,10 +6,10 @@ export const toBusyoInfo = (busyo: Busyo): BusyoInfo => {
   return {
     id: busyo.id,
     name: busyo.name,
-    cost: busyo.cost,
+    cost: busyo.cost.toString(),
     role: busyo.role,
     forceSize: busyo.forceSize,
-    rank: busyo.rank,
+    rank: busyo.rank.toString(),
     attack: busyo.attack,
     defense: busyo.defense,
     strategy: busyo.strategy,
@@ -59,10 +59,10 @@ export class Busyo {
   loadFromBusyoInfo(info: BusyoInfo): void {
     this.id = info.id;
     this.name = info.name;
-    this.cost = info.cost;
+    this.cost = Number(info.cost);
     this.role = Role[info.role as keyof typeof Role];
     this.forceSize = info.forceSize;
-    this.rank = info.rank;
+    this.rank = Number(info.rank);
     this.attack = info.attack;
     this.defense = info.defense;
     this.strategy = info.strategy;

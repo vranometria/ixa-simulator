@@ -4,10 +4,10 @@ import { Busyo } from "./models";
 export interface BusyoInfo {
     id: string;
     name: string;
-    cost: number;
+    cost: string | null;
     role: string;
     forceSize: number;
-    rank: number;
+    rank: string;
     attack: number;
     defense: number;
     strategy: number;

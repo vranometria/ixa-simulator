@@ -8,8 +8,8 @@ export const useBusyoStore = defineStore('busyo', {
         editting: {
             id: '',
             name: '',
-            cost: 0,
-            rank: 1,
+            cost: "",
+            rank: "",
             forceSize: 0,
             attack: 0,
             defense: 0,
@@ -31,8 +31,8 @@ export const useBusyoStore = defineStore('busyo', {
             this.editting = {
                 id: '',
                 name: '',
-                cost: 0,
-                rank: 1,
+                cost: "",
+                rank: "",
                 forceSize: 0,
                 attack: 0,
                 defense: 0,
