@@ -64,6 +64,9 @@ export const useBusyoStore = defineStore('busyo', {
         save(){
             const busyo = new Busyo();
             busyo.loadFromBusyoInfo(toRaw(this.editting));
+            if(!busyo.id){
+                busyo.id = crypto.randomUUID();
+            }
             const index = this.busyos.findIndex((b: Busyo) => b.id === this.editting.id);
             if (index >= 0) {
                 // update
@@ -73,6 +76,10 @@ export const useBusyoStore = defineStore('busyo', {
                 this.busyos.push(busyo);
             }
 
+            window.electronApi.saveBusyo(this.RawBusyoInfos);
+        },
+        deleteBusyo(id: string) {
+            this.busyos = this.busyos.filter((b: Busyo) => b.id !== id);
             window.electronApi.saveBusyo(this.RawBusyoInfos);
         },
         getBusyoById(id: string): Busyo | undefined {

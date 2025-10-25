@@ -1,9 +1,10 @@
 <template>
     <div class="mode-panel">
         {{ mode === 'edit' ? '編集モード: ' + busyoStore.editting.id : '登録モード' }}
-        <span v-if="mode === 'edit'">
-            <button @click="changeToCreateMode">編集解除</button>
-        </span>
+        <div v-if="mode === 'edit'">
+            <button class="release" @click="changeToCreateMode">編集解除</button>
+            <button class="del" @click="deleteBusyo">削除</button>
+        </div>
     </div>
     <label for="text" class="item">Name: <input id="text" v-model="busyoStore.editting.name"
             :class="errors['name']" /></label>
@@ -111,6 +112,16 @@ const changeToCreateMode = () => {
     busyoStore.clearEditing();
     mode.value = "new";
 };
+
+const deleteBusyo = () => {
+    if (mode.value === "edit") {
+        if (confirm("本当に削除しますか？")) {
+            busyoStore.deleteBusyo(busyoStore.editting.id);
+            busyoStore.clearEditing();
+            mode.value = "new";
+        }
+    }
+};
 </script>
 
 <style scoped>
@@ -124,9 +135,20 @@ const changeToCreateMode = () => {
 }
 
 .mode-panel {
+    display: flex;
     padding: 8px;
     margin-bottom: 16px;
     border: 1px solid gray;
     background-color: #f0f0f0;
+}
+
+.del {
+    margin-left: 40px;
+    background-color: #ff4d4d;
+    color: white;
+}
+
+.release {
+    margin-left: 10px;
 }
 </style>
